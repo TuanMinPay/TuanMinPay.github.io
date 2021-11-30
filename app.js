@@ -10,7 +10,7 @@ async function initMetamon() {
     $('#metamon-body').html("");
     let data = await $.get("https://market-api.radiocaca.com/nft-sales?pageNo=1&pageSize=4&sortBy=fixed_price&name=&order=asc&saleType&category=13&tokenType");
     if (data.list.length > 0) {
-        data.list.forEach(function (item) {
+        data.list.forEach(async function (item) {
             if (Notification.permission === 'granted' && item.fixed_price <= priceMetamon) {
                 var notify = new Notification('METAMON', {
                     body: `New low price available: ${item.fixed_price}`,
@@ -20,15 +20,22 @@ async function initMetamon() {
                     window.open(`https://market.radiocaca.com/#/market-place/${item.id}`, '_blank').focus();
                 }
             }
+            let detail = await $.get(`https://market-api.radiocaca.com/nft-sales/${item.id}`);
             $('#metamon-body').append(`
-                        <tr>
-                            <td>${item.id}</td>
-                            <td>${item.name}</td>
-                            <td><img src="${item.image_url}" height="50"/></td>
-                            <td>${item.fixed_price}</td>
-                            <td><a href="https://market.radiocaca.com/#/market-place/${item.id}" target="_blank">Buy Item</a></td>
-                        </tr>
-                    `);
+                <tr>
+                    <td>${item.name}</td>
+                    <td><div>
+                        <span>Level: ${detail.data.properties.find(x => x.key == "Level").value}</span></br>
+                        <span>Score: ${detail.data.properties.find(x => x.key == "Score").value}</span>
+                    </div></td>
+                    <td><div>
+                        <span>Wisdom: ${detail.data.properties.find(x => x.key == "Wisdom").value}</span></br>
+                        <span>Stealth: ${detail.data.properties.find(x => x.key == "Stealth").value}</span>
+                    </div></td>
+                    <td>${item.fixed_price}</td>
+                    <td><a href="https://market.radiocaca.com/#/market-place/${item.id}" target="_blank">Buy Item</a></td>
+                </tr>
+            `);
         });
     }
 }
