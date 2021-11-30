@@ -23,14 +23,21 @@ async function initMetamon() {
             let detail = await $.get(`https://market-api.radiocaca.com/nft-sales/${item.id}`);
             $('#metamon-body').append(`
                 <tr>
-                    <td>${item.name}</td>
+                    <td>${item.name}#${item.id}</td>
+                    <td><img src="${item.image_url}" height="100"/></td>
                     <td><div>
-                        <span>Level: ${detail.data.properties.find(x => x.key == "Level").value}</span></br>
-                        <span>Score: ${detail.data.properties.find(x => x.key == "Score").value}</span>
+                        <span>Level: <strong>${detail.data.properties.find(x => x.key == "Level").value}</strong></span></br>
+                        <span>Score: <strong>${detail.data.properties.find(x => x.key == "Score").value}</strong></span></br>
+                        <span>Rarity: <strong>${detail.data.properties.find(x => x.key == "Rarity").value}</strong></span></br>
+                        <span>Race: <strong>${detail.data.properties.find(x => x.key == "Race").value}</strong></span></br>
+                        <span>Healthy: <strong>${detail.data.properties.find(x => x.key == "Healthy").value}</strong></span></br>
                     </div></td>
                     <td><div>
-                        <span>Wisdom: ${detail.data.properties.find(x => x.key == "Wisdom").value}</span></br>
-                        <span>Stealth: ${detail.data.properties.find(x => x.key == "Stealth").value}</span>
+                        <span>Wisdom: <strong>${detail.data.properties.find(x => x.key == "Wisdom").value}</strong></span></br>
+                        <span>Stealth: <strong>${detail.data.properties.find(x => x.key == "Stealth").value}</strong></span></br>
+                        <span>Luck: <strong>${detail.data.properties.find(x => x.key == "Luck").value}</strong></span></br>
+                        <span>Courage: <strong>${detail.data.properties.find(x => x.key == "Courage").value}</strong></span></br>
+                        <span>Size: <strong>${detail.data.properties.find(x => x.key == "Size").value}</strong></span>
                     </div></td>
                     <td>${item.fixed_price}</td>
                     <td><a href="https://market.radiocaca.com/#/market-place/${item.id}" target="_blank">Buy Item</a></td>
@@ -63,41 +70,6 @@ async function initEgg() {
                 }
             }
             $('#egg-body').append(`
-                        <tr>
-                            <td>${item.id}</td>
-                            <td>${item.name}</td>
-                            <td><img src="${item.image_url}" height="50"/></td>
-                            <td>${item.fixed_price}</td>
-                            <td><a href="https://market.radiocaca.com/#/market-place/${item.id}" target="_blank">Buy Item</a></td>
-                        </tr>
-                    `);
-        });
-    }
-}
-
-async function initPotion() {
-    let pricePotion = localStorage.getItem('pricePotion');
-    if (!pricePotion) {
-        pricePotion = 8000;
-        localStorage.setItem('pricePotion', pricePotion);
-    } else {
-        pricePotion = parseInt(pricePotion);
-    }
-    $('#potionPrice').val(pricePotion);
-    $('#potion-body').html("");
-    let data = await $.get("https://market-api.radiocaca.com/nft-sales?pageNo=1&pageSize=4&sortBy=fixed_price&name=&order=asc&saleType&category=15&tokenType");
-    if (data.list.length > 0) {
-        data.list.forEach(function (item) {
-            if (Notification.permission === 'granted' && item.fixed_price <= pricePotion) {
-                var notify = new Notification('POTION', {
-                    body: `New low price available: ${item.fixed_price}`,
-                    icon: item.image_url,
-                });
-                notify.onclick = function () {
-                    window.open(`https://market.radiocaca.com/#/market-place/${item.id}`, '_blank').focus();
-                }
-            }
-            $('#potion-body').append(`
                         <tr>
                             <td>${item.id}</td>
                             <td>${item.name}</td>
@@ -154,7 +126,6 @@ $(document).ready(function () {
         // init app
         initMetamon();
         initEgg();
-        initPotion();
         initNewest();
 
         // metamon
@@ -164,10 +135,6 @@ $(document).ready(function () {
         // egg
         setInterval(function () {
             initEgg();
-        }, 10000);
-        // potion
-        setInterval(function () {
-            initPotion();
         }, 10000);
         // newest
         setInterval(function () {
