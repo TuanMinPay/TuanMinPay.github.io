@@ -172,7 +172,7 @@ $(document).ready(function () {
         // metamon
         setInterval(function () {
             initMetamonNewest();
-        }, 10000);
+        }, 5000);
         // metamon
         setInterval(function () {
             initMetamon();
