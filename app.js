@@ -1,3 +1,41 @@
+function racaWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+async function initMetamonNewest() {
+    $('#metamon-newest-body').html("");
+    let data = await $.get("https://market-api.radiocaca.com/nft-sales?pageNo=1&pageSize=6&sortBy=created_at&order=desc&name=&saleType&category=13&tokenType");
+    if (data.list.length > 0) {
+        data.list.forEach(async function (item) {
+            let detail = await $.get(`https://market-api.radiocaca.com/nft-sales/${item.id}`);
+            $('#metamon-newest-body').append(`
+                <tr>
+                    <td><div>
+                        <span>Level: <strong>${detail.data.properties.find(x => x.key == "Level").value}</strong></span></br>
+                        <span>Score: <strong>${detail.data.properties.find(x => x.key == "Score").value}</strong></span></br>
+                        <span>Rarity: <strong>${detail.data.properties.find(x => x.key == "Rarity").value}</strong></span></br>
+                    </div></td>
+                    <td><div>
+                        <span>Race: <strong>${detail.data.properties.find(x => x.key == "Race").value}</strong></span></br>
+                        <span>Healthy: <strong>${detail.data.properties.find(x => x.key == "Healthy").value}</strong></span></br>
+                    </div></td>
+                    <td><div>
+                        <span>Wisdom: <strong>${detail.data.properties.find(x => x.key == "Wisdom").value}</strong></span></br>
+                        <span>Stealth: <strong>${detail.data.properties.find(x => x.key == "Stealth").value}</strong></span></br>
+                        <span>Luck: <strong>${detail.data.properties.find(x => x.key == "Luck").value}</strong></span></br>
+                    </div></td>
+                    <td><div>
+                        <span>Courage: <strong>${detail.data.properties.find(x => x.key == "Courage").value}</strong></span></br>
+                        <span>Size: <strong>${detail.data.properties.find(x => x.key == "Size").value}</strong></span>
+                    </div></td>
+                    <td>${racaWithCommas(item.fixed_price)}</td>
+                    <td><a href="https://market.radiocaca.com/#/market-place/${item.id}" target="_blank">Buy Item</a></td>
+                </tr>
+            `);
+        });
+    }
+}
+
 async function initMetamon() {
     let priceMetamon = localStorage.getItem('priceMetamon');
     if (!priceMetamon) {
@@ -8,7 +46,7 @@ async function initMetamon() {
     }
     $('#metamonPrice').val(priceMetamon);
     $('#metamon-body').html("");
-    let data = await $.get("https://market-api.radiocaca.com/nft-sales?pageNo=1&pageSize=4&sortBy=fixed_price&name=&order=asc&saleType&category=13&tokenType");
+    let data = await $.get("https://market-api.radiocaca.com/nft-sales?pageNo=1&pageSize=5&sortBy=fixed_price&name=&order=asc&saleType&category=13&tokenType");
     if (data.list.length > 0) {
         data.list.forEach(async function (item) {
             if (Notification.permission === 'granted' && item.fixed_price <= priceMetamon) {
@@ -23,12 +61,12 @@ async function initMetamon() {
             let detail = await $.get(`https://market-api.radiocaca.com/nft-sales/${item.id}`);
             $('#metamon-body').append(`
                 <tr>
-                    <td>${item.name}#${item.id}</td>
-                    <td><img src="${item.image_url}" height="100"/></td>
                     <td><div>
                         <span>Level: <strong>${detail.data.properties.find(x => x.key == "Level").value}</strong></span></br>
                         <span>Score: <strong>${detail.data.properties.find(x => x.key == "Score").value}</strong></span></br>
                         <span>Rarity: <strong>${detail.data.properties.find(x => x.key == "Rarity").value}</strong></span></br>
+                    </div></td>
+                    <td><div>
                         <span>Race: <strong>${detail.data.properties.find(x => x.key == "Race").value}</strong></span></br>
                         <span>Healthy: <strong>${detail.data.properties.find(x => x.key == "Healthy").value}</strong></span></br>
                     </div></td>
@@ -36,10 +74,12 @@ async function initMetamon() {
                         <span>Wisdom: <strong>${detail.data.properties.find(x => x.key == "Wisdom").value}</strong></span></br>
                         <span>Stealth: <strong>${detail.data.properties.find(x => x.key == "Stealth").value}</strong></span></br>
                         <span>Luck: <strong>${detail.data.properties.find(x => x.key == "Luck").value}</strong></span></br>
+                    </div></td>
+                    <td><div>
                         <span>Courage: <strong>${detail.data.properties.find(x => x.key == "Courage").value}</strong></span></br>
                         <span>Size: <strong>${detail.data.properties.find(x => x.key == "Size").value}</strong></span>
                     </div></td>
-                    <td>${item.fixed_price}</td>
+                    <td>${racaWithCommas(item.fixed_price)}</td>
                     <td><a href="https://market.radiocaca.com/#/market-place/${item.id}" target="_blank">Buy Item</a></td>
                 </tr>
             `);
@@ -74,7 +114,7 @@ async function initEgg() {
                             <td>${item.id}</td>
                             <td>${item.name}</td>
                             <td><img src="${item.image_url}" height="50"/></td>
-                            <td>${item.fixed_price}</td>
+                            <td>${racaWithCommas(item.fixed_price)}</td>
                             <td><a href="https://market.radiocaca.com/#/market-place/${item.id}" target="_blank">Buy Item</a></td>
                         </tr>
                     `);
@@ -92,7 +132,7 @@ async function initNewest() {
                             <td>${item.id}</td>
                             <td>${item.name}</td>
                             <td><img src="${item.image_url}" height="47.4"/></td>
-                            <td>${item.fixed_price}</td>
+                            <td>${racaWithCommas(item.fixed_price)}</td>
                             <td><a href="https://market.radiocaca.com/#/market-place/${item.id}" target="_blank">Buy Item</a></td>
                         </tr>
                     `);
@@ -124,10 +164,15 @@ $(document).ready(function () {
         }
 
         // init app
+        initMetamonNewest();
         initMetamon();
         initEgg();
         initNewest();
 
+        // metamon
+        setInterval(function () {
+            initMetamonNewest();
+        }, 10000);
         // metamon
         setInterval(function () {
             initMetamon();
